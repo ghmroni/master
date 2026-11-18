@@ -1,0 +1,36 @@
+.imagebox {
+            position: relative;
+        }
+
+        .imagebox .caption-content {
+            height: 50px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            color: var(--white);
+            text-align: center;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .imagebox .caption-content.video-caption {
+            height: 100%;
+            width: 100%;
+            opacity: 1;
+        }
+
+        .imagebox:hover .caption-content {
+            opacity: 1;
+        }
+
+        .gallery-grid-container .row {
+            --bs-gutter-y: 1rem;
+        }

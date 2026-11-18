@@ -1,0 +1,97 @@
+NO;NO_SOAL;NO_URUT;PERNYATAAN;NILAI_P;NILAI_K
+1;1;1;Gampangan, Mudah setuju;S;S
+2;1;2;Percaya, Mudah percaya pada orang;I;I
+3;1;3;Petualang, Mengambil resiko;*;D
+4;1;4;Toleran, Menghormati;C;C
+5;2;1;Lembut suara, Pendiam;C;*
+6;2;2;Optimistik, Visioner;D;D
+7;2;3;Pusat Perhatian, Suka gaul;*;I
+8;2;4;Pendamai, Membawa Harmoni;S;S
+9;3;1;Menyemangati orang;I;I
+10;3;2;Berusaha sempurna;*;C
+11;3;3;Bagian dari kelompok;*;S
+12;3;4;Ingin membuat tujuan;D;*
+13;4;1;Menjadi frustrasi;C;C
+14;4;2;Menyimpan perasaan saya;S;S
+15;4;3;Menceritakan sisi saya;*;I
+16;4;4;Siap beroposisi;D;D
+17;5;1;Hidup, Suka bicara;I;*
+18;5;2;Gerak cepat, Tekun;D;D
+19;5;3;Usaha menjaga keseimbangan;S;S
+20;5;4;Usaha mengikuti aturan;*;C
+21;6;1;Kelola waktu secara efisien;C;*
+22;6;2;Sering terburu-buru, Merasa tertekan;D;D
+23;6;3;Masalah sosial itu penting;I;I
+24;6;4;Suka selesaikan apa yang saya mulai;S;S
+25;7;1;Tolak perubahan mendadak;S;*
+26;7;2;Cenderung janji berlebihan;I;I
+27;7;3;Tarik diri di tengah tekanan;*;C
+28;7;4;Tidak takut bertempur;*;D
+29;8;1;Penyemangat yang baik;I;I
+30;8;2;Pendengar yang baik;S;S
+31;8;3;Penganalisa yang baik;C;C
+32;8;4;Delegator yang baik;D;D
+33;9;1;Hasil adalah penting;D;D
+34;9;2;Lakukan dengan benar, Akurasi penting;C;C
+35;9;3;Dibuat menyenangkan;*;I
+36;9;4;Mari kerjakan bersama;*;S
+37;10;1;Akan berjalan terus tanpa kontrol diri;*;C
+38;10;2;Akan membeli sesuai dorongan hati;D;D
+39;10;3;Akan menunggu, Tanpa tekanan;S;S
+40;10;4;Akan mengusahakan  yang kuinginkan;I;*
+41;11;1;Ramah, Mudah bergabung;S;*
+42;11;2;Unik, Bosan rutinitas;*;I
+43;11;3;Aktif mengubah sesuatu;D;D
+44;11;4;Ingin hal-hal yang pasti;C;C
+45;12;1;Non-konfrontasi, Menyerah;*;S
+46;12;2;Dipenuhi hal detail;C;*
+47;12;3;Perubahan pada menit terakhir;I;I
+48;12;4;Menuntut, Kasar;D;D
+49;13;1;Ingin kemajuan;D;D
+50;13;2;Puas dengan segalanya;S;*
+51;13;3;Terbuka memperlihatkan perasaan;I;*
+52;13;4;Rendah hati, Sederhana;*;*
+53;14;1;Tenang, Pendiam;C;C
+54;14;2;Bahagia, Tanpa beban;I;I
+55;14;3;Menyenangkan, Baik hati;S;*
+56;14;4;Tak gentar, Berani;D;D
+57;15;1;Menggunakan waktu berkualitas dgn teman;S;S
+58;15;2;Rencanakan masa depan, Bersiap;C;*
+59;15;3;Bepergian demi petualangan baru;I;I
+60;15;4;Menerima ganjaran atas tujuan yg dicapai;D;D
+61;16;1;Aturan perlu dipertanyakan;*;D
+62;16;2;Aturan membuat adil;C;*
+63;16;3;Aturan membuat bosan;I;I
+64;16;4;Aturan membuat aman;S;S
+65;17;1;Pendidikan, Kebudayaan;*;C
+66;17;2;Prestasi, Ganjaran;D;D
+67;17;3;Keselamatan, keamanan;S;S
+68;17;4;Sosial, Perkumpulan kelompok;I;*
+69;18;1;Memimpin, Pendekatan langsung;D;D
+70;18;2;Suka bergaul, Antusias;*;I
+71;18;3;Dapat diramal, Konsisten;*;S
+72;18;4;Waspada, Hati-hati;C;*
+73;19;1;Tidak mudah dikalahkan;D;D
+74;19;2;Kerjakan sesuai perintah, Ikut pimpinan;S;*
+75;19;3;Mudah terangsang, Riang;I;I
+76;19;4;Ingin segalanya teratur, Rapi;*;C
+77;20;1;Saya akan pimpin mereka;D;*
+78;20;2;Saya akan melaksanakan;S;S
+79;20;3;Saya akan meyakinkan mereka;I;I
+80;20;4;Saya dapatkan fakta;C;*
+81;21;1;Memikirkan orang dahulu;S;S
+82;21;2;Kompetitif, Suka tantangan;D;D
+83;21;3;Optimis, Positif;I;I
+84;21;4;Pemikir logis, Sistematik;*;C
+85;22;1;Menyenangkan orang, Mudah setuju;S;S
+86;22;2;Tertawa lepas, Hidup;*;I
+87;22;3;Berani, Tak gentar;D;D
+88;22;4;Tenang, Pendiam;C;C
+89;23;1;Ingin otoritas lebih;*;D
+90;23;2;Ingin kesempatan baru;I;*
+91;23;3;Menghindari konflik;S;S
+92;23;4;Ingin petunjuk yang jelas;*;C
+93;24;1;Dapat diandalkan, Dapata dipercaya;*;S
+94;24;2;Kreatif, Unik;I;I
+95;24;3;Garis dasar, Orientasi hasil;D;*
+96;24;4;Jalankan standar yang tinggi, Akurat;C;*

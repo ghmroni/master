@@ -1,0 +1,80 @@
+.flatpickr-monthSelect-months {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  width: 100%;
+}
+.flatpickr-monthSelect-month {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  color: rgba(0,0,0,0.9);
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 400;
+  margin: -1px 8px 14px 8px;
+  justify-content: center;
+  padding: 10px 10px;
+  position: relative;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  text-align: center;
+  width: 25%;
+}
+.flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month {
+  color: rgba(255,255,255,0.9);
+}
+.flatpickr-monthSelect-month:hover,
+.flatpickr-monthSelect-month:focus {
+  cursor: pointer;
+  outline: 0;
+  background: #e6e6e6;
+  border-color: #e6e6e6;
+}
+.flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month:hover,
+.flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month:focus {
+  background: #404040;
+  border-color: #404040;
+}
+.flatpickr-monthSelect-month.selected {
+  background: #569ff7;
+  border-color: #569ff7;
+  color: #fff;
+}
+/* .flatpickr-monthSelect-month.disabled,
+.flatpickr-monthSelect-month.disabled:hover {
+  background: none;
+  border-color: transparent;
+  color: rgba(57,57,57,0.3);
+  cursor: default;
+  pointer-events: none;
+}
+.flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month.disabled,
+.flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month.disabled:hover {
+  color: rgba(255,255,255,0.1);
+} */
+
+/* Bulan disable tampil abu-abu (muted) */
+.flatpickr-monthSelect-month.disabled {
+  color: #bbb !important; /* Warna teks pudar/muted */
+  background: none !important; /* Tanpa background */
+  border-color: transparent !important; /* Tanpa border */
+  cursor: not-allowed !important; /* Kursor tanda dilarang */
+  opacity: 0.5 !important; /* Membuat teks lebih samar */
+  pointer-events: none; /* Mematikan semua interaksi klik/hover dari browser */
+}
+
+/* Memastikan total tidak ada efek warna saat kursor di atasnya */
+.flatpickr-monthSelect-month.disabled:hover,
+.flatpickr-monthSelect-month.disabled:focus {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: #bbb !important;
+}
