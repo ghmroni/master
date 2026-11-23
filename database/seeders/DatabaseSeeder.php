@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             StatusKontrakSeeder::class,
             JabatanSeeder::class,
             BankSeeder::class,
+            SystemSettingSeeder::class,
         ]);
     }
 }

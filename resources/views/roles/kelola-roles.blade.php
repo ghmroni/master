@@ -39,7 +39,8 @@
                         value="{{ $roleId ?? null }}">
                     <input type="text" id="name" name="name" class="form-control text-uppercase"
                         placeholder="Nama Role / Nama Level" required autocomplete="off"
-                        value="{{ $rolename->name ?? null }}">
+                        value="{{ $rolename->name ?? null }}"
+                        {{ Auth::user()->hasRole('SUPER ADMINISTRATOR') ? '' : 'readonly' }}>
                     <button class="btn btn-primary" type="submit"><i class="fas fa-save me-1"></i>Simpan</button>
                 </div>
 

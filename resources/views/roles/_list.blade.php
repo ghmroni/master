@@ -1,7 +1,7 @@
 <div class="row g-4">
     {{-- Tambah Roles --}}
     {{-- @hasrole('ADMIN') --}}
-    @if (auth()->user()->hasRole('ADMIN') || auth()->user()->can('tambah-role'))
+    @if (auth()->user()->hasRole('SUPER ADMINISTRATOR'))
         <div class="col-xl-4 col-lg-6 col-md-6">
             <div class="card h-100 card-border-shadow-primary">
                 <div class="row h-100">

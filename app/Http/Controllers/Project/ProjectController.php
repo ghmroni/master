@@ -179,8 +179,11 @@ class ProjectController extends Controller implements HasMiddleware
     {
         $query = User::whereNull('deleted_at')
             ->where('status', 'ENABLE')
-            ->whereHas('roles', function ($q) {
-                $q->where('id', 6);
+            ->when(!Auth::user()->hasRole('SUPER ADMINISTRATOR'), function ($query) {
+                // Sembunyikan user yang memiliki role SA atau Administrator
+                $query->whereDoesntHave('roles', function ($q) {
+                    $q->whereIn('name', ['SUPER ADMINISTRATOR', 'ADMINISTRATOR']);
+                });
             })
             ->orderBy('name', 'ASC');
 
@@ -209,7 +212,7 @@ class ProjectController extends Controller implements HasMiddleware
         }
 
         return view('project.akses-project', [
-            'judul' => 'Akses Project'
+            'judul' => 'Akses Project Pengguna'
         ], compact('users'));
     }
 

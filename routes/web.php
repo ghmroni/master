@@ -21,6 +21,7 @@ use App\Http\Controllers\Project\ProjectController;
 use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\Simc\SimcController;
 use App\Http\Controllers\Super\SuperController;
+use App\Http\Middleware\CheckSystemExpired;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -42,12 +43,6 @@ Route::group(['middleware' => 'preventBackHistory'], function () {
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('actionlogout')->middleware('auth');
 
-    // Route::get('/system-expired', function () {
-    //     return view('errors.system_expired');
-    // })->middleware('auth')->name('system.expired');
-
-    // // 3. BUNGKUS SEMUA ROUTE FITUR UTAMA DENGAN CheckSystemExpired
-    // Route::middleware(['auth:web', CheckSystemExpired::class])->group(function () {}); // Akhir grup CheckSystemExpired
     ## DASHBOARD
     Route::controller(DashboardController::class)
         ->middleware(['auth:web'])
@@ -56,17 +51,58 @@ Route::group(['middleware' => 'preventBackHistory'], function () {
             Route::get('/', 'index')->name('home');
             Route::get('/active-session', 'activeSessions')->name('activeUser');
             Route::get('/stream-active-sessions', 'streamActiveSessions')->name('streamSession');
-            Route::post('/force-logout', 'forceLogout')->name('forceOut');
         });
 
-    ## SA
-    Route::controller(SuperController::class)
-        ->middleware('auth')
-        ->name('sa.')
-        ->group(function () {
-            Route::get('pengguna', 'users')->name('users');
-            Route::post('pengguna', 'store_user')->name('userstore');
-        });
+    Route::get('/system-expired', function () {
+        return view('errors.system_expired');
+    })->middleware('auth')->name('system.expired');
+
+    # BUNGKUS SEMUA ROUTE FITUR UTAMA DENGAN CheckSystemExpired
+    Route::middleware(['auth:web', CheckSystemExpired::class])->group(function () {
+        ## SA
+        Route::controller(SuperController::class)
+            ->name('sa.')
+            ->group(function () {
+                Route::get('pengguna', 'users')->name('users');
+                Route::post('pengguna', 'store_user')->name('userstore');
+                Route::post('/force-logout', 'forceLogout')->name('forceOut');
+            });
+        ## ROLES
+        Route::controller(RoleController::class)
+            ->name('role.')
+            ->group(function () {
+                Route::get('roles', 'index')->name('roles');
+                Route::post('roles', 'store_roles')->name('rolesstore');
+                Route::get('roles/kelola/{token?}', 'kelola_roles')->name('kelolaroles');
+                Route::get('edit-roles', 'edit_roles')->name('editroles');
+            });
+
+        ## PROJECT
+        Route::controller(ProjectController::class)
+            // ->middleware('auth')
+            ->name('project.')
+            ->group(function () {
+                Route::get('project', 'index')->name('project');
+                Route::post('project', 'store_project')->name('projectstore');
+                Route::get('/project/edit', 'edit_project')->name('projectedit');
+                Route::get('/project/editsub', 'edit_subproject')->name('subprojectedit');
+                Route::post('project/hapus', 'hapus_project')->name('hapus');
+                Route::get('project/all', 'project_all')->name('projectall');
+                Route::get('akses-projectuser', 'akses_user')->name('aksesuser');
+                Route::get('kelola/aksesproject/{token}', 'kelola_aksesproject')->name('kelolaakses');
+                Route::post('akses-projectuser', 'store_akses')->name('storeaksesuser');
+                Route::get('setting-akses', 'akses_setting')->name('aksessetting');
+                Route::get('setting-akses-child', 'akses_child')->name('akseschild');
+                Route::get('akses-project', 'akses_project')->name('aksesproject');
+                Route::get('list-aksesproject', 'list_aksesproject')->name('listakses');
+                Route::get('lokasi-project', 'lokasi_project')->name('lokasiproject');
+                Route::get('lokasi/ptko', 'lokasi_ptko_recursive')->name('lokasiptko');
+                Route::get('lokasi/ptko', 'lokasi_ptko_recursive')->name('lokasiptko');
+                Route::get('akses-project-tree', 'tree')->name('projectTree');
+                Route::get('akses-project-kontrak', 'tree_kontrak')->name('projectKontrak');
+            });
+    }); // Akhir grup CheckSystemExpired
+
 
     ## PROFILE
     Route::controller(ProfileController::class)
@@ -136,31 +172,6 @@ Route::group(['middleware' => 'preventBackHistory'], function () {
             Route::get('curent-submenu', 'getCurrentSubmenu')->name('submenucurrent');
         });
 
-    ## PROJECT
-    Route::controller(ProjectController::class)
-        ->middleware('auth')
-        ->name('project.')
-        ->group(function () {
-            Route::get('project', 'index')->name('project');
-            Route::post('project', 'store_project')->name('projectstore');
-            Route::get('/project/edit', 'edit_project')->name('projectedit');
-            Route::get('/project/editsub', 'edit_subproject')->name('subprojectedit');
-            Route::post('project/hapus', 'hapus_project')->name('hapus');
-            Route::get('project/all', 'project_all')->name('projectall');
-            Route::get('akses-projectuser', 'akses_user')->name('aksesuser');
-            Route::get('kelola/aksesproject/{token}', 'kelola_aksesproject')->name('kelolaakses');
-            Route::post('akses-projectuser', 'store_akses')->name('storeaksesuser');
-            Route::get('setting-akses', 'akses_setting')->name('aksessetting');
-            Route::get('setting-akses-child', 'akses_child')->name('akseschild');
-            Route::get('akses-project', 'akses_project')->name('aksesproject');
-            Route::get('list-aksesproject', 'list_aksesproject')->name('listakses');
-            Route::get('lokasi-project', 'lokasi_project')->name('lokasiproject');
-            Route::get('lokasi/ptko', 'lokasi_ptko_recursive')->name('lokasiptko');
-            Route::get('lokasi/ptko', 'lokasi_ptko_recursive')->name('lokasiptko');
-            Route::get('akses-project-tree', 'tree')->name('projectTree');
-            Route::get('akses-project-kontrak', 'tree_kontrak')->name('projectKontrak');
-        });
-
     ## KONTRAK INDUK
     Route::controller(KontrakindukController::class)
         ->middleware('auth')
@@ -185,17 +196,6 @@ Route::group(['middleware' => 'preventBackHistory'], function () {
             Route::post('adendum-add-new', 'adendum_store_new')->name('storeNewAdendum');
             Route::post('adendum-reject', 'adendum_reject')->name('tolakAdendum');
             Route::get('adendum/edit', 'adendum_edit')->name('editAdendum');
-        });
-
-    ## ROLES
-    Route::controller(RoleController::class)
-        ->middleware('auth')
-        ->name('role.')
-        ->group(function () {
-            Route::get('roles', 'index')->name('roles');
-            Route::post('roles', 'store_roles')->name('rolesstore');
-            Route::get('roles/kelola/{token?}', 'kelola_roles')->name('kelolaroles');
-            Route::get('edit-roles', 'edit_roles')->name('editroles');
         });
 
     ## PERMISSIONS

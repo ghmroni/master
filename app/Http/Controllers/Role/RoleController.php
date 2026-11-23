@@ -8,6 +8,7 @@ use Firebase\JWT\Key;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Middleware\PermissionMiddleware;
@@ -28,7 +29,10 @@ class RoleController extends Controller implements HasMiddleware
     {
         ## Get Data Roles
         ## Ambil roles dengan jumlah user dan daftar user sekaligus
-        $roles = Role::withCount('users')   ## otomatis bikin field users_count
+        $roles = Role::when(!Auth::user()->hasRole('SUPER ADMINISTRATOR'), function ($query) {
+            $query->where('name', '!=', 'SUPER ADMINISTRATOR');
+        })
+            ->withCount('users')   ## otomatis bikin field users_count
             ->with(['users' => function ($q) {
                 $q->select('users.id', 'users.name', 'users.image');
             }])
@@ -79,8 +83,11 @@ class RoleController extends Controller implements HasMiddleware
 
         ## Permission
         $permissions = Permission::orderBy('module')
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $q->where('module', 'like', "%{$request->search}%");
+            ->when(!Auth::user()->hasRole('SUPER ADMINISTRATOR'), function ($query) {
+                # Sembunyikan modul tertentu
+                $query->whereNotIn('module', ['Quota', 'Permissions', 'Menus'])
+                    # Atau sembunyikan permission spesifik
+                    ->whereNotIn('name', ['tambah-role']);
             })
             ->get()
             ->groupBy('module');
@@ -101,9 +108,9 @@ class RoleController extends Controller implements HasMiddleware
         ## End EDIT
 
         ## Jika AJAX, kirim partial view
-        if ($request->ajax()) {
-            return view('roles._listperm', compact('permissions', 'selectedPermissions', 'token', 'rolePermissions', 'roleId', 'rolename'))->render();
-        }
+        // if ($request->ajax()) {
+        //     return view('roles._listperm', compact('permissions', 'selectedPermissions', 'token', 'rolePermissions', 'roleId', 'rolename'))->render();
+        // }
 
         return view('roles.kelola-roles', [
             'judul' => 'Roles / Level',
@@ -133,34 +140,46 @@ class RoleController extends Controller implements HasMiddleware
     public function store_roles(Request $request)
     {
 
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'name' => [
-                    'required',
-                    Rule::unique('roles', 'name')->ignore($request->idrole),
-                ],
-            ],
-            [
+        $isSuperAdmin = Auth::user()->hasRole('SUPER ADMINISTRATOR');
+
+        // 1. Aturan validasi dasar
+        $rules = [];
+        $messages = [];
+
+        // Jika SA, atau jika ini adalah data baru (create), maka nama wajib divalidasi
+        if ($isSuperAdmin || empty($request->idrole)) {
+            $rules['name'] = [
+                'required',
+                Rule::unique('roles', 'name')->ignore($request->idrole),
+            ];
+            $messages = [
                 'name.required' => 'Nama Level masih kosong.',
                 'name.unique'   => 'Nama Level sudah tersedia.',
-            ]
-        );
+            ];
+        }
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->messages()->first(),
             ], 405);
         } else {
             $idrol = $request->idrole;
-            ## 
+
+            // 2. Data yang akan disimpan
+            $dataToUpdate = [];
+
+            // Hanya update nama jika dia SA atau sedang membuat role baru
+            if ($isSuperAdmin || empty($idrol)) {
+                $dataToUpdate['name'] = trim(strtoupper($request->name));
+            }
+
             $role = Role::updateOrCreate(
-                [
-                    'id' => $idrol,
-                ],
-                [
-                    'name' => trim(strtoupper($request->name))
-                ]
+                ['id' => $idrol],
+                $dataToUpdate
             );
+
             $role->permissions()->sync($request->permissions ?? []);
 
             return response()->json([
@@ -168,39 +187,4 @@ class RoleController extends Controller implements HasMiddleware
             ], 200);
         }
     }
-
-
-    // public function create()
-    // {
-    //     $permissions = Permission::orderBy('module')->get()->groupBy('module');
-    //     return view('roles.create', compact('permissions'));
-    // }
-
-    // public function store(Request $request)
-    // {
-    //     $role = Role::create([
-    //         'name' => $request->name,
-    //     ]);
-
-    //     $role->permissions()->sync($request->permissions ?? []);
-    //     return redirect()->route('roles.index')->with('success', 'Role berhasil ditambahkan');
-    // }
-
-    // public function edit(Role $role)
-    // {
-    //     $rolePermissions = $role->permissions()->pluck('id')->toArray();
-    //     $permissions = Permission::orderBy('module')->get()->groupBy('module');
-
-    //     return view('roles.edit', compact('role', 'permissions', 'rolePermissions'));
-    // }
-
-    // public function update(Request $request, Role $role)
-    // {
-    //     $role->update([
-    //         'name' => $request->name,
-    //     ]);
-
-    //     $role->permissions()->sync($request->permissions ?? []);
-    //     return redirect()->route('roles.index')->with('success', 'Role berhasil diupdate');
-    // }
 }

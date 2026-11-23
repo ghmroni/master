@@ -18,7 +18,7 @@ class CheckSystemExpired
      */
     public function handle(Request $request, Closure $next): Response
     {
-        # Bebaskan SUPER ADMINISTRATOR agar tetap bisa login & memperpanjang masa aktif
+        # Bebaskan SUPER ADMINISTRATOR
         if (Auth::check() && Auth::user()->hasRole('SUPER ADMINISTRATOR')) {
             return $next($request);
         }
@@ -26,24 +26,27 @@ class CheckSystemExpired
         # Ambil pengaturan masa aktif dari database
         $setting = DB::table('system_settings')->first();
 
-        if ($setting) {
-            # Cek apakah tanggal hari ini sudah melewati batas akhir (pukul 23:59:59 pada tanggal expired_at)
-            $isExpired = $setting->expired_at && Carbon::now()->gt(Carbon::parse($setting->expired_at)->endOfDay());
-
-            # Jika dikunci manual oleh SA ATAU tanggalnya sudah lewat
-            if ($setting->is_suspended || $isExpired) {
-
-                # Jika request berasal dari AJAX / jQuery
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'message' => 'Masa aktif penggunaan aplikasi telah berakhir. Silakan hubungi Super Administrator.'
-                    ], 403);
-                }
-
-                # Jika akses halaman web biasa, arahkan ke halaman informasi expired
-                return redirect()->route('system.expired');
+        # JIKA SETTING KOSONG: Blokir akses atau anggap expired
+        if (!$setting) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Pengaturan sistem tidak ditemukan.'], 403);
             }
+            return redirect()->route('system.expired');
         }
+
+        # Cek apakah tanggal hari ini sudah melewati batas akhir
+        $isExpired = $setting->expired_at && Carbon::now()->gt(Carbon::parse($setting->expired_at)->endOfDay());
+
+        # Jika dikunci manual ATAU tanggalnya sudah lewat
+        if ($setting->is_suspended || $isExpired) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Masa aktif penggunaan aplikasi telah berakhir. Silakan hubungi Super Administrator.'
+                ], 403);
+            }
+            return redirect()->route('system.expired');
+        }
+
         return $next($request);
     }
 }

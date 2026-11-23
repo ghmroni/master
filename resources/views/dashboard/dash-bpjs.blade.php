@@ -5,6 +5,15 @@
 @endphp
 
 @section('content')
+    @if ($alertMessage)
+        <div class="alert alert-{{ $alertType }} alert-dismissible animate__animated animate__fadeInDown" role="alert">
+            <span class="alert-icon text-{{ $alertType }} me-2">
+                <i class="ti ti-bell ti-xs"></i>
+            </span>
+            {!! $alertMessage !!}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <div class="row">
         <div class="col-md-12">
             <div class="nav-align-top mb-4">

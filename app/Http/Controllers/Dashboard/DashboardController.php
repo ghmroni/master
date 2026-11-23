@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\Karyawan;
-use App\Models\Kontrak;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +13,24 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        $setting = DB::table('system_settings')->first();
+
+        $daysLeft = null;
+        $alertMessage = null;
+        $alertType = 'warning'; // Default warna kuning
+
+        if ($setting && $setting->expired_at) {
+            $expiredDate = Carbon::parse($setting->expired_at);
+            $daysLeft = floor(Carbon::now()->diffInDays($expiredDate, false)); // false agar bisa minus jika sudah lewat
+
+            if ($daysLeft <= 0) {
+                $alertMessage = "Masa aktif aplikasi telah <b>berakhir</b>. Fitur operasional telah dikunci. Silakan hubungi Super Administrator.";
+                $alertType = 'danger'; // Warna merah
+            } elseif ($daysLeft <= 60) { // 60 hari = 2 bulan
+                $alertMessage = "Masa aktif aplikasi Anda akan berakhir dalam <b>{$daysLeft} hari</b> lagi. Segera lakukan perpanjangan untuk menghindari pemblokiran sistem.";
+            }
+        }
+
         $user = Auth::user();
         $roleId = $user->roles->pluck('id')->first(); // ambil id role pertama
 
@@ -27,7 +43,9 @@ class DashboardController extends Controller
 
         $view = $views[$roleId] ?? 'dashboard.dash-guest';
 
-        return view($view, ['judul' => 'Halaman Awal']);
+        return view($view, [
+            'judul' => 'Halaman Awal'
+        ], compact('alertMessage', 'alertType'));
     }
 
     public function activeSessions(Request $request)
@@ -41,6 +59,15 @@ class DashboardController extends Controller
                 })
                 ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
                 ->whereNotNull('sessions.user_id')
+                ->when(!Auth::user()->hasRole('SUPER ADMINISTRATOR'), function ($query) {
+                    $query->whereNotIn('users.id', function ($subQuery) {
+                        $subQuery->select('model_id')
+                            ->from('model_has_roles')
+                            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                            ->where('roles.name', 'SUPER ADMINISTRATOR')
+                            ->where('model_has_roles.model_type', 'App\Models\User');
+                    });
+                })
                 ->where('sessions.last_activity', '>', now()->subMinutes(120)->getTimestamp())
                 ->select(
                     'users.id',
@@ -87,6 +114,15 @@ class DashboardController extends Controller
                     })
                     ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
                     ->whereNotNull('sessions.user_id')
+                    ->when(!Auth::user()->hasRole('SUPER ADMINISTRATOR'), function ($query) {
+                        $query->whereNotIn('users.id', function ($subQuery) {
+                            $subQuery->select('model_id')
+                                ->from('model_has_roles')
+                                ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                                ->where('roles.name', 'SUPER ADMINISTRATOR')
+                                ->where('model_has_roles.model_type', 'App\Models\User');
+                        });
+                    })
                     ->where('sessions.last_activity', '>', now()->subMinutes(120)->getTimestamp())
                     ->select(
                         'users.id',
@@ -134,19 +170,5 @@ class DashboardController extends Controller
         $response->headers->set('Connection', 'keep-alive');
 
         return $response;
-    }
-
-    public function forceLogout(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|integer',
-        ]);
-
-        // Hapus sesi pengguna berdasarkan user_id
-        DB::table('sessions')->where('user_id', $request->user_id)->delete();
-
-        return response()->json([
-            'message' => 'Pengguna Berhasil Dikeluarkan.'
-        ]);
     }
 }

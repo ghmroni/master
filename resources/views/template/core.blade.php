@@ -87,9 +87,9 @@
                             <div
                                 class="footer-container d-flex align-items-center justify-content-between py-2 flex-md-row flex-column">
                                 <div>
-                                    © {{ date('Y') }} ❤️
-                                    <a href="https://poladaya.co.id/" target="_blank"
-                                        class="footer-link text-primary fw-medium">PT POLADAYA INDONESIA</a>
+                                    © {{ date('Y') }} ❤️ R2N
+                                    {{-- <a href="https://r2n.co.id/" target="_blank"
+                                        class="footer-link text-primary fw-medium">R2N</a> --}}
                                 </div>
 
                             </div>

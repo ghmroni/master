@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
@@ -199,5 +200,19 @@ class SuperController extends Controller implements HasMiddleware
                 'message' => 'Data Berhasil Disimpan'
             ], 200);
         }
+    }
+
+    public function forceLogout(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+        ]);
+
+        // Hapus sesi pengguna berdasarkan user_id
+        DB::table('sessions')->where('user_id', $request->user_id)->delete();
+
+        return response()->json([
+            'message' => 'Pengguna Berhasil Dikeluarkan.'
+        ]);
     }
 }
