@@ -50,19 +50,19 @@ services:
                 - "-p${DB_PASSWORD}"
             retries: 3
             timeout: 5s
-    queue:
-        image: "sail-8.4/app"
-        container_name: master-queue
-        restart: unless-stopped
-        depends_on:
-            - laravel.test
-            - mysql
-        volumes:
-            - ".:/var/www/html"
-            # - "../assets:/var/www/html/storage/app/public"
-        command: php artisan queue:work --sleep=3 --tries=3 --timeout=900
-        networks:
-            - sail
+    # queue:
+    #     image: "sail-8.4/app"
+    #     container_name: master-queue
+    #     restart: unless-stopped
+    #     depends_on:
+    #         - laravel.test
+    #         - mysql
+    #     volumes:
+    #         - ".:/var/www/html"
+    #         # - "../assets:/var/www/html/storage/app/public"
+    #     command: php artisan queue:work --sleep=3 --tries=3 --timeout=900
+    #     networks:
+    #         - sail
 networks:
     sail:
         driver: bridge

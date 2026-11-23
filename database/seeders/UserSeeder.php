@@ -15,60 +15,32 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // User::truncate();
+        $sa = User::create([
+            'name' => 'SUPER ADMINISTRATOR',
+            'email' => 'sa@gmail.com',
+            'password' => Hash::make('123456Aa'),
+        ]);
+        $sa->assignRole(1);
+
         $admin = User::create([
-            'name' => 'SUPER ADMIN',
+            'name' => 'ADMIN',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('123456Aa'),
         ]);
-        $admin->assignRole(1);
+        $admin->assignRole(2);
 
-        $pl = User::create([
+        $pengguna = User::create([
             'name' => 'PL',
             'email' => 'pl@gmail.com',
             'password' => Hash::make('123456Aa'),
         ]);
-        $pl->assignRole(6);
-
-        $rec = User::create([
-            'name' => 'RECRUITMENT',
-            'email' => 'rect@gmail.com',
-            'password' => Hash::make('123456Aa'),
-        ]);
-        $rec->assignRole(9);
-
-        $gm = User::create([
-            'name' => 'GM OPRS',
-            'email' => 'gm@gmail.com',
-            'password' => Hash::make('123456Aa'),
-        ]);
-        $gm->assignRole(4);
-
-        $hrtko = User::create([
-            'name' => 'HR TKO',
-            'email' => 'hr@gmail.com',
-            'password' => Hash::make('123456Aa'),
-        ]);
-        $hrtko->assignRole(8);
-
-        $hr = User::create([
-            'name' => 'HR HO',
-            'email' => 'hrpusat@gmail.com',
-            'password' => Hash::make('123456Aa'),
-        ]);
-        $hr->assignRole(7);
-
-        $legal = User::create([
-            'name' => 'LEGAL',
-            'email' => 'legal@gmail.com',
-            'password' => Hash::make('123456Aa'),
-        ]);
-        $legal->assignRole(10);
+        $pengguna->assignRole(3);
 
         $bpjs = User::create([
             'name' => 'ADMIN BPJS',
             'email' => 'bpjs@gmail.com',
             'password' => Hash::make('123456Aa'),
         ]);
-        $bpjs->assignRole(11);
+        $bpjs->assignRole(4);
     }
 }

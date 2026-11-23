@@ -46,7 +46,6 @@ class MenuSeeder extends Seeder
             'lihat-role',
             'lihat-kontrakinduk',
             'lihat-permission',
-            'lihat-company',
             'lihat-project',
             'lihat-aksesproject',
             'lihat-jabatan',
@@ -58,13 +57,6 @@ class MenuSeeder extends Seeder
         ])->pluck('id', 'name');
 
         $subMenuSettings = [
-            [
-                'name'       => 'Company',
-                'url'        => '/company',
-                'sort'       => 0,
-                'status'     => 'ENABLE',
-                'permission' => $permSettings['lihat-company'],
-            ],
             [
                 'name'       => 'Import Karyawan',
                 'url'        => '/import-karyawan',
@@ -232,172 +224,6 @@ class MenuSeeder extends Seeder
                 ->sync($sub['permission']);
         }
 
-        ## =============================================================== LOWONGAN
-        $lowongan = Menu::create([
-            'name'   => 'LOWONGAN',
-            'url'    => null,
-            'icon'   => 'ti ti-package',
-            'sort'   => 1,
-            'status' => 'ENABLE',
-        ]);
-        $permLowonganIds = Permission::whereIn('name', [
-            'tambah-lowongan',
-            'lihat-lowongan'
-        ])->pluck('id', 'name');
-        $subMenuLowongan = [
-            [
-                'name'       => 'Input Lowongan',
-                'url'        => '/inputlowongan',
-                'sort'       => 0,
-                'status'     => 'ENABLE',
-                'permission' => $permLowonganIds['tambah-lowongan'],
-            ],
-            [
-                'name'       => 'Data Lowongan',
-                'url'        => '/lowongan',
-                'sort'       => 1,
-                'status'     => 'ENABLE',
-                'permission' => $permLowonganIds['lihat-lowongan'],
-            ],
-        ];
-        foreach ($subMenuLowongan as $sub) {
-            $lowongan->subMenus()
-                ->create([
-                    'name'   => strtoupper($sub['name']),
-                    'url'    => $sub['url'],
-                    'sort'   => $sub['sort'],
-                    'status' => $sub['status'],
-                ])
-                ->permissions()
-                ->sync($sub['permission']);
-        }
-
-        ## =============================================================== WEBSITE
-        $website = Menu::create([
-            'name'   => 'WEBSITE',
-            'url'    => null,
-            'icon'   => 'ti ti-world',
-            'sort'   => 1,
-            'status' => 'ENABLE',
-        ]);
-        $subMenuWebsite = [
-            [
-                'name'       => 'Slider',
-                'url'        => '/slider',
-                'sort'       => 0,
-                'status'     => 'ENABLE',
-                'permission' => 20,
-            ],
-            [
-                'name'       => 'Tentang GHM',
-                'url'        => '/tentang',
-                'sort'       => 1,
-                'status'     => 'ENABLE',
-                'permission' => 20,
-            ],
-            [
-                'name'       => 'Visi Misi',
-                'url'        => '/visi-misi',
-                'sort'       => 2,
-                'status'     => 'ENABLE',
-                'permission' => 20,
-            ],
-            [
-                'name'       => 'Legalitas',
-                'url'        => '/legalitas',
-                'sort'       => 3,
-                'status'     => 'ENABLE',
-                'permission' => 20,
-            ],
-            [
-                'name'       => 'Portofolio',
-                'url'        => '/portofolio',
-                'sort'       => 4,
-                'status'     => 'ENABLE',
-                'permission' => 20,
-            ],
-            [
-                'name'       => 'Layanan GHM',
-                'url'        => '/layanan',
-                'sort'       => 5,
-                'status'     => 'ENABLE',
-                'permission' => 20,
-            ],
-            [
-                'name'       => 'Klien GHM',
-                'url'        => '/klien',
-                'sort'       => 6,
-                'status'     => 'ENABLE',
-                'permission' => 20,
-            ],
-            [
-                'name'       => 'Kontak GHM',
-                'url'        => '/kontak',
-                'sort'       => 7,
-                'status'     => 'ENABLE',
-                'permission' => 20,
-            ],
-        ];
-        foreach ($subMenuWebsite as $sub) {
-            $website->subMenus()
-                ->create([
-                    'name'   => strtoupper($sub['name']),
-                    'url'    => $sub['url'],
-                    'sort'   => $sub['sort'],
-                    'status' => $sub['status'],
-                ])
-                ->permissions()
-                ->sync($sub['permission']);
-        }
-
-        ## =============================================================== PEMANGGILAN
-        $recruitment = Menu::create([
-            'name'   => 'PEMANGGILAN',
-            'url'    => null,
-            'icon'   => 'ti ti-folder',
-            'sort'   => 1,
-            'status' => 'ENABLE',
-        ]);
-
-        $permRecruitmentIds = Permission::whereIn('name', [
-            'tambah-pemanggilan',
-            'lihat-pemanggilan',
-            'psikotest-hasil'
-        ])->pluck('id', 'name');
-
-        $recruitment->subMenus()
-            ->create([
-                'name'   => 'PANGGIL',
-                'url'    => '/pemanggilan',
-                'sort'   => 0,
-                'status' => 'ENABLE',
-            ])->permissions()->sync([$permRecruitmentIds['tambah-pemanggilan']]); // atau attach()
-        $recruitment->subMenus()
-            ->create([
-                'name'   => 'DATA PEMANGGILAN',
-                'url'    => '/data-pemanggilan',
-                'sort'   => 1,
-                'status' => 'ENABLE',
-            ])->permissions()->sync([$permRecruitmentIds['lihat-pemanggilan']]);
-        $recruitment->subMenus()
-            ->create([
-                'name'   => 'DATA PSIKOTEST',
-                'url'    => '/data-psikotest',
-                'sort'   => 2,
-                'status' => 'ENABLE',
-            ])->permissions()->sync([$permRecruitmentIds['psikotest-hasil']]);
-
-        ## =============================================================== PELAMAR
-        $pelamar = Menu::create([
-            'name'   => 'PELAMAR',
-            'url'    => '/pelamar',
-            'icon'   => 'ti ti-users',
-            'sort'   => 1,
-            'status' => 'ENABLE',
-        ]);
-        $permPelamarId = Permission::where('name', 'lihat-pelamar')->first();
-        $pelamar->permissions()->sync([$permPelamarId->id]);
-
         ## =============================================================== Permintaan
         $req = Menu::create([
             'name'   => 'PERMINTAAN',
@@ -406,15 +232,6 @@ class MenuSeeder extends Seeder
             'sort'   => 1,
             'status' => 'ENABLE',
         ]);
-
-        $newKar = $req->subMenus()->create([
-            'name'   => 'KARYAWAN BARU',
-            'url'    => '/banksdm',
-            'sort'   => 0,
-            'status' => 'ENABLE',
-        ]);
-        $banksdm = Permission::where('name', 'banksdm')->first();
-        $newKar->permissions()->sync($banksdm->id);
 
         $permPermintaanIds = Permission::whereIn('name', [
             'reqout-karyawan',
@@ -452,15 +269,6 @@ class MenuSeeder extends Seeder
         $permAppKontrakinduk = Permission::where('name', 'approval-kontrakinduk')->first();
         $ka->permissions()->sync([$permAppKontrakinduk->id]);
 
-        $calonKaryawan = $approve->subMenus()->create([
-            'name'   => 'CALON KARYAWAN',
-            'url'    => '/persetujuanuser',
-            'sort'   => 0,
-            'status' => 'ENABLE',
-        ]);
-        $permCalonKaryawan = Permission::where('name', 'approve-banksdm')->first();
-        $calonKaryawan->permissions()->sync($permCalonKaryawan->id);
-
         $karyawanMasuk = $approve->subMenus()->create([
             'name'   => 'KARYAWAN MASUK',
             'url'    => '/approvalIn',
@@ -487,17 +295,6 @@ class MenuSeeder extends Seeder
         ]);
         $approveMutasi = Permission::where('name', 'approve-mutasi')->first();
         $mutasiKar->permissions()->sync($approveMutasi->id);
-
-        ## =============================================================== PTKO
-        $pelamar = Menu::create([
-            'name'   => 'PTKO',
-            'url'    => '/ptko',
-            'icon'   => 'ti ti-link',
-            'sort'   => 0,
-            'status' => 'ENABLE',
-        ]);
-        $permissionsPtkoId = Permission::where('name', 'lihat-ptko')->first();
-        $pelamar->permissions()->sync([$permissionsPtkoId->id]);
 
         ## =============================================================== PKWT
         $pkwt = Menu::create([
@@ -773,50 +570,7 @@ class MenuSeeder extends Seeder
                 'status' => 'ENABLE',
             ])->permissions()->sync([$permissionLemburIds['data-lembur']]);
 
-        ## =============================================================== FLIGHT
-        $flight = Menu::create([
-            'name'   => 'FLIGHT',
-            'url'    => null,
-            'icon'   => 'ti ti-ticket',
-            'sort'   => 3,
-            'status' => 'ENABLE',
-        ]);
-        $permFlightIds = Permission::whereIn('name', [
-            'flight-upload',
-            'flighthaji-upload',
-            'flight-data',
-            'flighthaji-data',
-        ])
-            ->pluck('id', 'name');
-
-        $uploadFlight = $flight->subMenus()->create([
-            'name'   => 'UPLOAD FLIGHT',
-            'url'    => '/upload-flight',
-            'sort'   => 0,
-            'status' => 'ENABLE',
-        ]);
-        $permUploadFlight = Permission::whereIn('name', ['flight-upload', 'flighthaji-upload'])
-            ->pluck('id')
-            ->toArray();
-        $uploadFlight->permissions()->attach($permUploadFlight);
-
-        $flight->subMenus()
-            ->create([
-                'name'   => 'DATA FLIGHT',
-                'url'    => '/data-flight',
-                'sort'   => 1,
-                'status' => 'ENABLE',
-            ])->permissions()->sync([$permFlightIds['flight-data']]);
-        $flight->subMenus()
-            ->create([
-                'name'   => 'DATA FLIGHT HAJI',
-                'url'    => '/data-flighthaji',
-                'sort'   => 1,
-                'status' => 'ENABLE',
-            ])->permissions()->sync([$permFlightIds['flighthaji-data']]);
-
         ## =============================================================== DOWNLOAD
-
         $download = Menu::create([
             'name'   => 'DOWNLOAD',
             'url'    => null,
