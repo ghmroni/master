@@ -77,6 +77,6 @@
 @endsection
 
 @push('extra_script')
-    <script src="{{ asset('assets/customjs/dashboard/dash-bpjs.js') }}"></script>
+    <script src="{{ asset('assets/customjs/dashboard/dashboard-bpjs.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/apex-charts/apexcharts.js') }}"></script>
 @endpush

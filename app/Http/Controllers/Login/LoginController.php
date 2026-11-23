@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
@@ -34,7 +35,43 @@ class LoginController extends Controller
             'status'   => "ENABLE",
         ];
 
-        if (Auth::attempt($data)) {
+        if (Auth::validate($data)) {
+            $user = Auth::getLastAttempted();
+
+            ## =================================================== IZINKAN DI PERANGKAT SAMA
+            # Cek sesi aktif dalam 120 menit terakhir
+            $activeSession = DB::table('sessions')
+                ->where('user_id', $user->id)
+                ->where('last_activity', '>', now()->subMinutes(120)->getTimestamp())
+                ->first();
+
+            # Jika ada sesi aktif
+            if ($activeSession) {
+                ## Cek apakah IP Address-nya SAMA
+                if ($activeSession->ip_address === $request->ip()) {
+                    # IP Sama (Beda Browser/Tab di PC yang sama) -> Hapus sesi lama, izinkan masuk
+                    DB::table('sessions')->where('id', $activeSession->id)->delete();
+                } else {
+                    # IP Berbeda (Perangkat lain) -> Tolak
+                    $request->session()->flash('error', 'Akun ini sedang aktif di perangkat lain.');
+                    return redirect('login');
+                }
+            }
+
+            # Lanjutkan Login
+            Auth::login($user);
+            # 1. Regenerate & simpan session ke database agar ID-nya tercatat
+            $request->session()->regenerate();
+            $request->session()->save();
+
+            # 2. Catat waktu mulai online pada kolom login_at
+            DB::table('sessions')
+                ->where('id', session()->getId())
+                ->update([
+                    'user_id' => $user->id,
+                    'login_at' => now(),
+                ]);
+
             return redirect()->route('dashboard.home');
         }
 

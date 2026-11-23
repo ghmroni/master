@@ -39,8 +39,6 @@ class AdminController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware(PermissionMiddleware::using('lihat-user'), only: ['users']),
-            new Middleware(PermissionMiddleware::using('edit-user|tambah-user'), only: ['store_user', 'store_direct']),
             new Middleware(PermissionMiddleware::using('lihat-statuskawin'), only: ['statuskawin']),
             new Middleware(PermissionMiddleware::using('tambah-statuskawin|edit-statuskawin'), only: ['store_statuskawin', 'edit_statuskawin']),
             new Middleware(PermissionMiddleware::using('hapus-statuskawin'), only: ['destroy_statuskawin']),
@@ -113,80 +111,12 @@ class AdminController extends Controller implements HasMiddleware
 
     public function get_roles(Request $request)
     {
-        $data = Role::orderBy('name', 'asc')->pluck('id', 'name');
+        $data = Role::when(!Auth::user()->hasRole('SUPER ADMINISTRATOR'), function ($query) {
+            $query->where('name', '!=', 'SUPER ADMINISTRATOR');
+        })
+            ->orderBy('name', 'asc')
+            ->pluck('id', 'name');
         return response()->json($data, 200);
-    }
-
-    public function store_user(Request $request)
-    {
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'name'   => 'required',
-                'email'          => [
-                    'required',
-                    'string',
-                    'email:rfc,dns',
-                    Rule::unique('users', 'email')
-                        ->ignore($request->id)
-                        ->where(function ($query) {
-                            $query->whereNull('deleted_at')
-                                ->where('status', 'ENABLE');
-                        }),
-                ],
-                'roles'  => 'required',
-                'status' => 'required',
-            ],
-            [
-                'name.required'   => 'Nama Lengkap masih kosong',
-                'email.required'  => 'Alamat Email  masih kosong',
-                'email.unique'    => 'Oops! Alamat Email sudah tersedia.',
-                'roles.required'  => 'Level  masih kosong',
-                'status.required' => 'Status  masih kosong',
-            ]
-        );
-
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->messages()->first(),
-            ], 405);
-        } else {
-            ## INSERT
-            if ($request->id == null) {
-                $password = Str::random(10);
-
-                $user = User::create([
-                    'name'     => strtoupper($request->name),
-                    'email'    => strtolower($request->email),
-                    'status'   => $request->status,
-                    'password' => Hash::make($password),
-                ]);
-                $user->assignRole(Role::find($request->roles));
-
-                ## Send Email
-                $mailController = new EmailController;
-                $kirim = $mailController->send_new_account([
-                    'name'     => strtoupper($request->name),
-                    'email'    => trim(strtolower($request->email)),
-                    'password' => $password,
-                    'level'    => trim($request->roles),
-                    'url'      => URL::to('/login'),
-                ]);
-            } else {
-                ## UPDATE
-                $user = User::find($request->id);
-                $user->update([
-                    'name'   => strtoupper($request->name),
-                    'email'  => trim(strtolower($request->email)),
-                    'status' => $request->status,
-                ]);
-                $user->syncRoles(Role::find($request->roles));
-            }
-
-            return response()->json([
-                'message' => 'Data Berhasil Disimpan'
-            ], 200);
-        }
     }
 
     public function edit_user(Request $request)

@@ -21,26 +21,5 @@ class UserSeeder extends Seeder
             'password' => Hash::make('123456Aa'),
         ]);
         $sa->assignRole(1);
-
-        $admin = User::create([
-            'name' => 'ADMIN',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('123456Aa'),
-        ]);
-        $admin->assignRole(2);
-
-        $pengguna = User::create([
-            'name' => 'PL',
-            'email' => 'pl@gmail.com',
-            'password' => Hash::make('123456Aa'),
-        ]);
-        $pengguna->assignRole(3);
-
-        $bpjs = User::create([
-            'name' => 'ADMIN BPJS',
-            'email' => 'bpjs@gmail.com',
-            'password' => Hash::make('123456Aa'),
-        ]);
-        $bpjs->assignRole(4);
     }
 }

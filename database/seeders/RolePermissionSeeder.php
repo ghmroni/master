@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -13,6 +14,10 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        ## Permissions System
+        Permission::create(['name' => 'quota-manage', 'module' => 'Quota']);
         ## Permissions Users
         Permission::create(['name' => 'lihat-user', 'module' => 'Users']);
         Permission::create(['name' => 'tambah-user', 'module' => 'Users']);
@@ -140,65 +145,66 @@ class RolePermissionSeeder extends Seeder
 
         ## Set Role Permissions
         $roleAdmin = Role::findByName('SUPER ADMINISTRATOR');
-        $roleAdmin->givePermissionTo('lihat-user');
-        $roleAdmin->givePermissionTo('tambah-user');
-        $roleAdmin->givePermissionTo('edit-user');
+        $roleAdmin->syncPermissions(Permission::all());
+        // $roleAdmin->givePermissionTo('lihat-user');
+        // $roleAdmin->givePermissionTo('tambah-user');
+        // $roleAdmin->givePermissionTo('edit-user');
 
-        $roleAdmin->givePermissionTo('lihat-role');
-        $roleAdmin->givePermissionTo('tambah-role');
-        $roleAdmin->givePermissionTo('edit-role');
+        // $roleAdmin->givePermissionTo('lihat-role');
+        // $roleAdmin->givePermissionTo('tambah-role');
+        // $roleAdmin->givePermissionTo('edit-role');
 
-        $roleAdmin->givePermissionTo('lihat-menu');
-        $roleAdmin->givePermissionTo('tambah-menu');
-        $roleAdmin->givePermissionTo('edit-menu');
+        // $roleAdmin->givePermissionTo('lihat-menu');
+        // $roleAdmin->givePermissionTo('tambah-menu');
+        // $roleAdmin->givePermissionTo('edit-menu');
 
-        $roleAdmin->givePermissionTo('lihat-project');
-        $roleAdmin->givePermissionTo('tambah-project');
-        $roleAdmin->givePermissionTo('edit-project');
+        // $roleAdmin->givePermissionTo('lihat-project');
+        // $roleAdmin->givePermissionTo('tambah-project');
+        // $roleAdmin->givePermissionTo('edit-project');
 
-        $roleAdmin->givePermissionTo('lihat-aksesproject');
-        $roleAdmin->givePermissionTo('edit-aksesproject');
+        // $roleAdmin->givePermissionTo('lihat-aksesproject');
+        // $roleAdmin->givePermissionTo('edit-aksesproject');
 
-        $roleAdmin->givePermissionTo('import-karyawan');
-        $roleAdmin->givePermissionTo('lihat-kontrakinduk');
-        $roleAdmin->givePermissionTo('edit-kontrakinduk');
-        $roleAdmin->givePermissionTo('tambah-kontrakinduk');
-        $roleAdmin->givePermissionTo('hapus-kontrakinduk');
+        // $roleAdmin->givePermissionTo('import-karyawan');
+        // $roleAdmin->givePermissionTo('lihat-kontrakinduk');
+        // $roleAdmin->givePermissionTo('edit-kontrakinduk');
+        // $roleAdmin->givePermissionTo('tambah-kontrakinduk');
+        // $roleAdmin->givePermissionTo('hapus-kontrakinduk');
 
         # PENGGUNA
-        $rolePL = Role::findByName('PENGGUNA');
-        $rolePL->givePermissionTo('karyawan-aktif');
-        $rolePL->givePermissionTo('karyawan-keluar');
-        $rolePL->givePermissionTo('karyawan-reset');
-        $rolePL->givePermissionTo('mutasi-karyawan');
-        $rolePL->givePermissionTo('edit-karyawan');
-        $rolePL->givePermissionTo('reqout-karyawan');
-        $rolePL->givePermissionTo('download-karyawan');
-        $rolePL->givePermissionTo('paklaring-karyawan');
-        $rolePL->givePermissionTo('lihat-bpjs');
-        $rolePL->givePermissionTo('setting-bpjs');
-        $rolePL->givePermissionTo('monitoring-realtime');
-        $rolePL->givePermissionTo('monitoring-create');
-        $rolePL->givePermissionTo('monitoring-perorang');
-        $rolePL->givePermissionTo('monitoring-rekap');
-        $rolePL->givePermissionTo('absensi-create');
-        $rolePL->givePermissionTo('absensi-realtime');
-        $rolePL->givePermissionTo('absensi-perorang');
-        $rolePL->givePermissionTo('absensi-perlokasi');
-        $rolePL->givePermissionTo('absensi-upload-schedule');
-        $rolePL->givePermissionTo('absensi-data-schedule');
-        $rolePL->givePermissionTo('absensi-rekap-absen');
-        $rolePL->givePermissionTo('absensi-rekap-waktu');
-        $rolePL->givePermissionTo('absensi-datalokasi');
+        // $rolePL = Role::findByName('PENGGUNA');
+        // $rolePL->givePermissionTo('karyawan-aktif');
+        // $rolePL->givePermissionTo('karyawan-keluar');
+        // $rolePL->givePermissionTo('karyawan-reset');
+        // $rolePL->givePermissionTo('mutasi-karyawan');
+        // $rolePL->givePermissionTo('edit-karyawan');
+        // $rolePL->givePermissionTo('reqout-karyawan');
+        // $rolePL->givePermissionTo('download-karyawan');
+        // $rolePL->givePermissionTo('paklaring-karyawan');
+        // $rolePL->givePermissionTo('lihat-bpjs');
+        // $rolePL->givePermissionTo('setting-bpjs');
+        // $rolePL->givePermissionTo('monitoring-realtime');
+        // $rolePL->givePermissionTo('monitoring-create');
+        // $rolePL->givePermissionTo('monitoring-perorang');
+        // $rolePL->givePermissionTo('monitoring-rekap');
+        // $rolePL->givePermissionTo('absensi-create');
+        // $rolePL->givePermissionTo('absensi-realtime');
+        // $rolePL->givePermissionTo('absensi-perorang');
+        // $rolePL->givePermissionTo('absensi-perlokasi');
+        // $rolePL->givePermissionTo('absensi-upload-schedule');
+        // $rolePL->givePermissionTo('absensi-data-schedule');
+        // $rolePL->givePermissionTo('absensi-rekap-absen');
+        // $rolePL->givePermissionTo('absensi-rekap-waktu');
+        // $rolePL->givePermissionTo('absensi-datalokasi');
 
-        # ADMIN BPJS
-        $roleBpjs = Role::findByName('ADMIN BPJS');
-        $roleBpjs->givePermissionTo('lihat-bpjs');
-        $roleBpjs->givePermissionTo('edit-bpjs');
-        $roleBpjs->givePermissionTo('tambah-bpjs');
-        $roleBpjs->givePermissionTo('setting-bpjs');
-        $roleBpjs->givePermissionTo('hapus-bpjs');
-        $roleBpjs->givePermissionTo('karyawan-aktif');
-        $roleBpjs->givePermissionTo('karyawan-keluar');
+        // # ADMIN BPJS
+        // $roleBpjs = Role::findByName('ADMIN BPJS');
+        // $roleBpjs->givePermissionTo('lihat-bpjs');
+        // $roleBpjs->givePermissionTo('edit-bpjs');
+        // $roleBpjs->givePermissionTo('tambah-bpjs');
+        // $roleBpjs->givePermissionTo('setting-bpjs');
+        // $roleBpjs->givePermissionTo('hapus-bpjs');
+        // $roleBpjs->givePermissionTo('karyawan-aktif');
+        // $roleBpjs->givePermissionTo('karyawan-keluar');
     }
 }

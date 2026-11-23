@@ -62,10 +62,7 @@
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown"
                     data-bs-auto-close="outside" aria-expanded="false">
                     <i class="ti ti-bell ti-md"></i>
-                    @if (count(auth()->user()->unreadNotifications) > 0)
-                        <span
-                            class="badge bg-danger rounded-pill badge-notifications">{{ count(auth()->user()->unreadNotifications) }}</span>
-                    @endif
+
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end py-0 animate__animated animate__flipInX loading-notifikasi">
                     <li class="dropdown-menu-header border-bottom">
@@ -79,51 +76,6 @@
                                 <i class="ti ti-mail-opened fs-4"></i>
                             </a> --}}
                         </div>
-                    </li>
-                    <li class="dropdown-notifications-list scrollable-container">
-                        <ul class="list-group list-group-flush">
-                            @foreach (auth()->user()->unreadNotifications as $notification)
-                                <li class="list-group-item list-group-item-action dropdown-notifications-item "
-                                    id="notif-{{ $notification->id }}">
-                                    <div class="d-flex">
-                                        <div class="flex-shrink-0 me-3">
-                                            <div class="avatar">
-                                                <span class="avatar-initial rounded-circle bg-label-warning">
-                                                    <i class="ti ti-bell "></i></span>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1"
-                                            onclick="window.location='{{ route('notif.asRead', $notification->id) }}'">
-                                            <h6 class="mb-1 fw-bold">{{ $notification->data[0]['judul'] }}</h6>
-                                            <p class="mb-0 text-justify">{!! $notification->data[0]['pesan'] !!}</p>
-
-                                            <small
-                                                class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
-                                        </div>
-
-                                        <div class="flex-shrink-0 dropdown-notifications-actions">
-                                            <a href="javascript:void(0)"
-                                                class="dropdown-notifications-archive hapusNotifikasi"
-                                                data-id="{{ $notification->id }}">
-                                                <i class="ti ti-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </li>
-                    <li class="dropdown-menu-footer border-top markAllAsReadFooter">
-                        @if (count(auth()->user()->unreadNotifications) > 0)
-                            <a href="javascript:void(0)"
-                                class="dropdown-item d-flex justify-content-center text-primary p-2 h-px-40 mb-1 align-items-center markAllAsRead">
-                                <i class="ti ti-mail-opened fs-4 me-1"></i>Tandai semua dibaca
-                            </a>
-                        @else
-                            <span
-                                class="d-flex justify-content-center text-primary p-2 h-px-40 mb-1 align-items-center">
-                                Oops! Tidak ada notifikasi</span>
-                        @endif
                     </li>
                 </ul>
             </li>

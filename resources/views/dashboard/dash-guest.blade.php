@@ -16,5 +16,5 @@
 @endsection
 
 @push('extra_script')
-    <script src="{{ asset('assets/customjs/dashboard/dashboard-admin.js') }}"></script>
+    <script src="{{ asset('assets/customjs/dashboard/dashboard-guest.js') }}"></script>
 @endpush

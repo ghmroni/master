@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Karyawan;
 use App\Models\Kontrak;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DashboardController extends Controller
 {
@@ -16,12 +19,10 @@ class DashboardController extends Controller
         $roleId = $user->roles->pluck('id')->first(); // ambil id role pertama
 
         $views = [
-            1  => 'dashboard.dash-admin',
-            7  => 'dashboard.dash-hr',
-            8  => 'dashboard.dash-hr',
-            9  => 'dashboard.dash-recruitment',
-            10 => 'dashboard.dash-legal',
-            11 => 'dashboard.dash-bpjs',
+            1  => 'dashboard.dash-super',
+            2  => 'dashboard.dash-admin',
+            3  => 'dashboard.dash-recruitment',
+            4 => 'dashboard.dash-bpjs',
         ];
 
         $view = $views[$roleId] ?? 'dashboard.dash-guest';
@@ -29,36 +30,123 @@ class DashboardController extends Controller
         return view($view, ['judul' => 'Halaman Awal']);
     }
 
-    public function cetak_pkwt(Request $request)
+    public function activeSessions(Request $request)
     {
-        $akses = Auth::user()->getProjectAccess();
-        ## Query Total Karyawan
-        $total = Karyawan::whereNull('deleted_at')
-            ->whereNull('tanggal_keluar')
-            ->whereIn('project_detail', $akses)
-            ->count();
-
-        ## Query Belum Cetak
-        $belumCetak = Kontrak::whereNull('deleted_at')
-            ->whereNull('pkwt_id')
-            ->where('status_kontrak', 'AKTIF')
-            ->whereHas('karyawan', function ($q) use ($akses) {
-                $q->whereNull('deleted_at')->whereNull('tanggal_keluar')->whereIn('project_detail', $akses);
-            })
-            ->count();
-
-        # ini persentase yang belum cetak
-        $persentaseSudah = $total > 0
-            ? round(($belumCetak / $total) * 100)
-            : 0;
-
-        # persentase yang sudah cetak
-        $persentase = $total > 0
-            ? round((($total - $belumCetak) / $total) * 100)
-            : 0; // jika belum ada data agar persentase 100%, (opsional bisa juga dikasih nilai 0)
-
         if ($request->ajax()) {
-            return response()->json(['presentasi' => $persentase], 200);
+            $activeUsers = DB::table('sessions')
+                ->join('users', 'sessions.user_id', '=', 'users.id')
+                ->leftJoin('model_has_roles', function ($join) {
+                    $join->on('users.id', '=', 'model_has_roles.model_id')
+                        ->where('model_has_roles.model_type', '=', 'App\Models\User');
+                })
+                ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                ->whereNotNull('sessions.user_id')
+                ->where('sessions.last_activity', '>', now()->subMinutes(120)->getTimestamp())
+                ->select(
+                    'users.id',
+                    'users.name',
+                    'users.email',
+                    'users.image',
+                    'sessions.ip_address',
+                    'sessions.last_activity',
+                    'sessions.login_at',
+                    DB::raw('GROUP_CONCAT(DISTINCT roles.name SEPARATOR ", ") as role_name')
+                )
+                ->groupBy(
+                    'users.id',
+                    'users.name',
+                    'users.email',
+                    'sessions.ip_address',
+                    'sessions.last_activity',
+                    'users.image',
+                    'sessions.login_at',
+                )
+                ->orderBy('users.name', 'asc')
+                ->get()
+                ->map(function ($user) {
+                    $user->last_activity_human = $user->login_at
+                        ? Carbon::parse($user->login_at)->diffForHumans()
+                        : 'Baru saja';
+
+                    return $user;
+                });
+
+            return response()->json($activeUsers);
         }
+    }
+
+    public function streamActiveSessions()
+    {
+        $response = new StreamedResponse(function () {
+            while (true) {
+                $activeUsers = DB::table('sessions')
+                    ->join('users', 'sessions.user_id', '=', 'users.id')
+                    ->leftJoin('model_has_roles', function ($join) {
+                        $join->on('users.id', '=', 'model_has_roles.model_id')
+                            ->where('model_has_roles.model_type', '=', 'App\Models\User');
+                    })
+                    ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                    ->whereNotNull('sessions.user_id')
+                    ->where('sessions.last_activity', '>', now()->subMinutes(120)->getTimestamp())
+                    ->select(
+                        'users.id',
+                        'users.name',
+                        'users.email',
+                        'users.image',
+                        'sessions.ip_address',
+                        'sessions.last_activity',
+                        'sessions.login_at',
+                        DB::raw('GROUP_CONCAT(DISTINCT roles.name SEPARATOR ", ") as role_name')
+                    )
+                    ->groupBy(
+                        'users.id',
+                        'users.name',
+                        'users.email',
+                        'sessions.ip_address',
+                        'sessions.last_activity',
+                        'users.image',
+                        'sessions.login_at',
+                    )
+                    ->orderBy('users.name', 'asc')
+                    ->get()
+                    ->map(function ($user) {
+                        $user->last_activity_human = $user->login_at
+                            ? Carbon::parse($user->login_at)->diffForHumans()
+                            : 'Baru saja';
+
+                        return $user;
+                    });
+
+                // Kirim data dengan format SSE
+                echo "data: " . json_encode($activeUsers) . "\n\n";
+
+                // Flush buffer agar data langsung terkirim
+                ob_flush();
+                flush();
+
+                // Tunggu 5 detik sebelum mengirim data berikutnya
+                sleep(5);
+            }
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Connection', 'keep-alive');
+
+        return $response;
+    }
+
+    public function forceLogout(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+        ]);
+
+        // Hapus sesi pengguna berdasarkan user_id
+        DB::table('sessions')->where('user_id', $request->user_id)->delete();
+
+        return response()->json([
+            'message' => 'Pengguna Berhasil Dikeluarkan.'
+        ]);
     }
 }

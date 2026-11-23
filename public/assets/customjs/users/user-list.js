@@ -1,14 +1,6 @@
 _loading();
 
 $(function () {
-    $('#formTambah :input[type="text"]').keyup(function () {
-        this.value = this.value.toUpperCase();
-    });
-
-    $('#formTambah :input[type="email"]').keyup(function () {
-        this.value = this.value.toLowerCase();
-    });
-
     $.ajaxSetup({
         headers: {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
@@ -150,16 +142,36 @@ $(function () {
                     },
                     error: function (error) {
                         $.unblockUI();
+                        let errorMessage = error.statusText;
+                        let errorTitle = `Error ${error.status}`;
 
-                        var errorMessage = error.statusText;
-                        if (error.status == 405) {
-                            // Not Acceptable
-                            var errors = $.parseJSON(error.responseText);
-                            errorMessage = errors.errors;
+                        // Coba parse JSON jika ada responseText
+                        if (error.responseText) {
+                            try {
+                                let response = JSON.parse(error.responseText);
+                                // Jika format Laravel: { errors: { field: ["msg1", "msg2"] } }
+                                if (response.errors) {
+                                    // Gabungkan semua pesan error jadi satu string
+                                    // errorMessage = Object.values(response.errors)
+                                    //     .flat()
+                                    //     .join('\n');
+                                    var errors = $.parseJSON(
+                                        error.responseText,
+                                    );
+                                    errorMessage = errors.errors;
+                                } else if (response.message) {
+                                    // Jika ada message langsung
+                                    errorMessage = response.message;
+                                }
+                            } catch (e) {
+                                // Jika gagal parse, pakai responseText mentah
+                                // errorMessage = error.responseText;
+                                errorMessage = error.statusText;
+                            }
                         }
 
                         Swal.fire({
-                            title: $.parseJSON(error.status),
+                            title: errorTitle,
                             text: errorMessage,
                             icon: "error",
                             showClass: {

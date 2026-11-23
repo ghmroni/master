@@ -57,16 +57,16 @@
                             <div class="input-group input-group-merge">
                                 <span class="input-group-text"><i class="ti ti-user"></i></span>
                                 <input type="hidden" class="form-control" id="id" name="id">
-                                <input type="text" class="form-control" id="name" name="name"
-                                    placeholder="Nama Pengguna" required>
+                                <input type="text" class="form-control text-uppercase" id="name" name="name"
+                                    placeholder="Nama Pengguna" required autocomplete="off">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Alamat Email</label>
                             <div class="input-group input-group-merge">
                                 <span class="input-group-text"><i class="ti ti-mail"></i></span>
-                                <input type="email" class="form-control" id="email" name="email"
-                                    placeholder="Alamat Email" required>
+                                <input type="email" class="form-control text-lowercase" id="email" name="email"
+                                    placeholder="Alamat Email" required autocomplete="off">
                             </div>
                         </div>
                         <div class="mb-3">

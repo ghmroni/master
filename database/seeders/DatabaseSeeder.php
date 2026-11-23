@@ -20,24 +20,15 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            // LokasiAbsensiSeeder::class,
-            // CFITSeeder::class,
-            // PapiSeeder::class,
-            // MbtiSeeder::class,
-            // DiscSeeder::class,
             RolePermissionSeeder::class,
             MenuSeeder::class,
             UserSeeder::class,
-            // ProjectSeeder::class,
-            // KaryawanSeeder::class,
             // ProvinsiSeeder::class,
             // KabkotSeeder::class,
             // KecamatanSeeder::class,
             // KelurahanSeeder::class,
             StatusPerkawinanSeeder::class,
-            // WebKontakSeeder::class,
             StatusKontrakSeeder::class,
-            // PelamarSeeder::class,
             JabatanSeeder::class,
             BankSeeder::class,
         ]);
