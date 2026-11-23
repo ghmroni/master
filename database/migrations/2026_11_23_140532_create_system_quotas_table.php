@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('system_quotas', function (Blueprint $table) {
             $table->id();
-            $table->string('feature_key')->unique();
+            $table->string('feature_key')->unique(); // max_admins, max_users, max_projects
             $table->string('label');
             $table->integer('limit_value');
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();

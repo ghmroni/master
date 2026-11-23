@@ -42,6 +42,12 @@ Route::group(['middleware' => 'preventBackHistory'], function () {
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('actionlogout')->middleware('auth');
 
+    // Route::get('/system-expired', function () {
+    //     return view('errors.system_expired');
+    // })->middleware('auth')->name('system.expired');
+
+    // // 3. BUNGKUS SEMUA ROUTE FITUR UTAMA DENGAN CheckSystemExpired
+    // Route::middleware(['auth:web', CheckSystemExpired::class])->group(function () {}); // Akhir grup CheckSystemExpired
     ## DASHBOARD
     Route::controller(DashboardController::class)
         ->middleware(['auth:web'])
