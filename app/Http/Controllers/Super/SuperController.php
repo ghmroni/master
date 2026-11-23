@@ -145,7 +145,7 @@ class SuperController extends Controller implements HasMiddleware
                         $totalAdmin = User::role('ADMINISTRATOR')->count();
 
                         if (QuotaService::isExceeded('max_admins', $totalAdmin)) {
-                            return back()->withInput()->with('error', 'Kuota akun Administrator sudah penuh.');
+                            return response()->json(['message' => 'Kuota akun Administrator sudah penuh.'], 422);
                         }
                     } else {
                         #Cek Kuota untuk role selain SA & Admin (dihitung sebagai Pengguna)
@@ -154,7 +154,7 @@ class SuperController extends Controller implements HasMiddleware
                         })->count();
 
                         if (QuotaService::isExceeded('max_users', $totalUser)) {
-                            return back()->withInput()->with('error', 'Kuota akun Pengguna sudah penuh.');
+                            return response()->json(['message' => 'Kuota akun Pengguna sudah penuh.'], 422);
                         }
                     }
                 }

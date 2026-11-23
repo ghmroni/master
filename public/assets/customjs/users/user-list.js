@@ -81,7 +81,7 @@ $(function () {
         _loading();
         $("#formTambah")[0].reset();
         $("#formTambah #id").val(null);
-
+        $('#formTambah #roles').val(null).trigger('change');
         $("#modalTambah .modal-title").text("Tambah Pengguna");
         $("#modalTambah").modal("show");
         $.unblockUI();
