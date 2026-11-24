@@ -99,25 +99,17 @@ class User extends Authenticatable
         $roles = $this->roles->pluck('id')->toArray();
 
         switch (true) {
-            ## ADMIN AMBIL SEMUA
-            case in_array(1, $roles):
+            ## SA & ADMIN AMBIL SEMUA
+            case in_array(1, $roles) || in_array(2, $roles):
                 return Project::pluck('id')->toArray();
 
-                ## HR GHM PUSAT
-            case in_array(7, $roles):
-                $idRoot = 1;
-                $rootProject = Project::find($idRoot);
-                return $rootProject
-                    ? $rootProject->descendantsAndSelf()->pluck('id')->toArray()
-                    : [$idRoot];
+                ## ADMIN BPJS
+            case in_array(4, $roles):
+                $aksesProject = $this->projects()->pluck('akses_project.project_id')->toArray();
 
-                ## GM OPRS, HR TKO, LEGAL, ADMIN BPJS
-            case in_array(4, $roles) || in_array(8, $roles) || in_array(10, $roles) || in_array(11, $roles):
-
-                return Project::all()
-                    ->filter(fn($p) => $p->businessRoot()->id !== 1)
-                    ->pluck('id')
-                    ->toArray();
+                return !empty($aksesProject)
+                    ? $aksesProject
+                    : Project::pluck('id')->toArray();
 
                 ## DEFAULT AMBIL DARI AKSES PROJECT
             default:

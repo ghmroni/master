@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('project', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('code')->nullable();
+            $table->string('code', 10)->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();
-            $table->unsignedBigInteger('pt_id')->nullable();
             $table->string('inisial')->nullable();
             $table->enum('status', ['ENABLE', 'DISABLE']);
             $table->string('logo')->nullable();

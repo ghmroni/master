@@ -26,8 +26,8 @@ class Project extends Model
         // return $this->name;
 
         if (is_null($this->parent_id)) {
-            $ptName = $this->pt?->name ?? '-';
-            return $this->name . ' ( <strong>' . $ptName . '</strong> )';
+            $inisialName = $this->inisial ?? '-';
+            return $this->name . ' ( <strong>' . $inisialName . '</strong> )';
         }
         return $this->name;
     }
@@ -36,8 +36,8 @@ class Project extends Model
     public function getPlainTextAttribute()
     {
         if (is_null($this->parent_id)) {
-            $ptName = $this->pt?->name ?? '-';
-            return $this->name . ' ( ' . $ptName . ' )';
+            $inisialName = $this->inisial ?? '-';
+            return $this->name . ' ( ' . $inisialName . ' )';
         }
         return $this->name;
     }

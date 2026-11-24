@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AksesProject;
 use App\Models\Project;
 use App\Models\User;
+use App\Services\QuotaService;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
@@ -29,26 +31,17 @@ class ProjectController extends Controller implements HasMiddleware
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            // $data = Project::with(['pt', 'children'])
-            //     ->where('status', 'ENABLE')
-            //     ->whereNull('parent_id')
-            //     ->orderBy('name', 'ASC')
-            //     ->get();
-            $data = Project::with(['pt', 'children'])
+            $data = Project::with('children')
                 ->where('status', 'ENABLE')
                 ->whereNull('parent_id')
-                ->get()
-                ->sortBy([
-                    ['pt.name', 'asc'],
-                    ['name', 'asc'],
-                ])
-                ->values();
+                ->orderBy('name', 'ASC')
+                ->get();
 
             return response()->json($data, 200);
         }
 
         return view('project.project-list', [
-            'judul' => 'Project',
+            'judul' => 'Kelola Project',
         ]);
     }
 
@@ -94,69 +87,72 @@ class ProjectController extends Controller implements HasMiddleware
             $id = $request->id;
             $parent = $request->parent;
 
+            ## SUB PROJECT
             if ($parent != null) {
-                ## SUB PROJECT
-                if ($id != null) {
-                    ## Edit SUB
-                    $subproject = Project::find($id);
-                    $subproject->update([
-                        'pt_id'     => $request->input('ptid'),
+                Project::updateOrCreate(
+                    ['id' => $id],
+                    [
                         'name'      => trim(strtoupper($request->input('name'))),
                         'parent_id' => $request->input('parentid'),
                         'status'    => $request->input('status'),
-                    ]);
-                } else {
-                    ## Tambah SUB
-                    $subproject = Project::create([
-                        'pt_id'     => $request->input('ptid'),
-                        'name'      => trim(strtoupper($request->input('name'))),
-                        'parent_id' => $request->input('parentid'),
-                        'status'    => $request->input('status'),
-                    ]);
-                }
+                    ]
+                );
             } else {
+                ## CEK KUOTA HANYA SAAT CREATE DATA BARU
+                if (empty($id)) {
+                    $isExceeded = QuotaService::isExceeded('max_projects', fn() => Project::count());
+                    if ($isExceeded) {
+                        // return back()->with('error', 'Batas maksimal pembuatan Project telah tercapai. Hubungi Super Admin.');
+                        return response()->json(['message' => 'Batas maksimal pembuatan Project telah tercapai. Hubungi Super Admin.'], 403);
+                    }
+                }
+
+                $dataProject = [
+                    'name'      => trim(strtoupper($request->input('name'))),
+                    'parent_id' => null,
+                    'inisial'   => trim(strtoupper($request->input('inisial'))),
+                    'status'    => $request->input('status'),
+                ];
 
                 ## PROJECT
                 if ($request->hasFile('logo')) {
-                    // $extension = $request->file('logo')->getClientOriginalExtension();
-                    // $filename  = date('YmdHis') . '.' . $extension;
+                    // Hapus logo lama jika sedang mode update
+                    if (!empty($id)) {
+                        $oldProject = Project::find($id);
+                        if ($oldProject?->logo && Storage::disk('public')->exists('master/project/' . $oldProject->logo)) {
+                            Storage::disk('public')->delete('master/project/' . $oldProject->logo);
+                        }
+                    }
 
-                    // Storage::disk('public')->putFileAs('hris/project/', $request->file('logo'), $filename);
-                    $file = $request->file('logo');
-                    $filename = time() . '.' . $file->getClientOriginalExtension();
-                    $destinationPath = public_path('assets/logos');
-                    // Pindahkan file
-                    $file->move($destinationPath, $filename);
-                } else {
-                    $filename = null;
+                    $extension = $request->file('logo')->getClientOriginalExtension();
+                    $filename  = date('YmdHis') . '_' . uniqid() . '.' . $extension;
+
+                    Storage::disk('public')->putFileAs('master/project', $request->file('logo'), $filename);
+
+                    $dataProject['logo'] = $filename;
                 }
 
-                if ($id != null) {
-                    ## Update
-                    $project = Project::findOrFail($id);
+                if (empty($id)) {
+                    $lastRootCode = Project::orderByRaw('LENGTH(code) DESC')
+                        ->orderBy('code', 'desc')
+                        ->first();
 
-                    $project->update([
-                        'name'    => trim(strtoupper($request->input('name'))),
-                        'pt_id'   => $request->input('ptid'),
-                        'inisial' => trim(strtoupper($request->input('inisial'))),
-                        'logo'    => $filename,
-                        'status'  => $request->input('status'),
-                    ]);
-                } else {
-                    $lastCode = Project::max('code');
-                    $nextCode = $lastCode ? ++$lastCode : 'AA';
+                    if (!$lastRootCode || !$lastRootCode->code) {
+                        $nextNumber = 100;
+                    } else {
+                        $nextNumber = (int) $lastRootCode->code + 1;
+                    }
 
-                    ## Create
-                    $project = Project::create([
-                        'pt_id'     => $request->input('ptid'),
-                        'name'      => trim(strtoupper($request->input('name'))),
-                        'parent_id' => null,
-                        'inisial'   => trim(strtoupper($request->input('inisial'))),
-                        'code'      => $nextCode,
-                        'logo'      => $filename,
-                        'status'    => $request->input('status'),
-                    ]);
+                    // Jika kolom 'code' bertipe string/varchar:
+                    $nextCode = (string) $nextNumber;
+
+                    $dataProject['code'] = $nextCode;
                 }
+
+                Project::updateOrCreate(
+                    ['id' => $id],
+                    $dataProject
+                );
             }
 
             return response()->json([

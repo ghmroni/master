@@ -117,9 +117,22 @@
     <!-- Navbar: End -->
 
     <!-- Sections:Start -->
-
     <!-- Pricing Plans -->
     <section class="section-py first-section-pt">
+        <section class="pricing-free-trial bg-label-danger">
+            <div class="container">
+                <div class="position-relative">
+                    <div
+                        class="d-flex justify-content-between flex-column-reverse flex-lg-row align-items-center py-4 px-5">
+                        <div class="text-center text-lg-start mt-2 ms-3">
+                            <h3 class="text-danger mb-1">Oops! Masa aktif penggunaan aplikasi telah berakhir.</h3>
+                            {{-- <p class="text-body mb-1">You will get full access to with all the features for enjoy.</p> --}}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
         <div class="container">
             <h2 class="text-center mb-2">Pricing Plans</h2>
             <p class="text-center">

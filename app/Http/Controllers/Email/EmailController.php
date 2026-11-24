@@ -13,9 +13,10 @@ class EmailController extends Controller
     public function send_new_account($data)
     {
         try {
-            $subject = 'Pembuatan Akun HRIS';
+            $subject = 'Pembuatan Akun Baru';
             $template = 'email.new_account';
-            Mail::to($data['email'])->queue(new MailSend($data, $subject, $template));
+            $fromName = 'R2N';
+            Mail::to($data['email'])->queue(new MailSend($data, $subject, $template, $fromName));
 
             return true;
         } catch (Exception $e) {

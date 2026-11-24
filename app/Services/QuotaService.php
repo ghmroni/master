@@ -15,7 +15,8 @@ class QuotaService
         //
     }
 
-    public static function isExceeded(string $featureKey, int $currentTotal): bool
+    // public static function isExceeded(string $featureKey, int $currentTotal): bool
+    public static function isExceeded(string $featureKey, callable|int $currentTotal): bool
     {
         // 1. Jika yang login SUPER ADMINISTRATOR, bebaskan dari semua batasan
         if (Auth::check() && Auth::user()->hasRole('SUPER ADMINISTRATOR')) {
@@ -37,7 +38,10 @@ class QuotaService
             return false;
         }
 
-        // 3. Bandingkan total data saat ini di database dengan batas maksimal
-        return $currentTotal >= (int) $limit;
+        // Eksekusi closure count() hanya jika memang dibutuhkan untuk pengecekan
+        $total = is_callable($currentTotal) ? $currentTotal() : $currentTotal;
+
+        // Bandingkan total data saat ini di database dengan batas maksimal
+        return $total >= (int) $limit;
     }
 }

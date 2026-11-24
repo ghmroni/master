@@ -140,21 +140,28 @@ class SuperController extends Controller implements HasMiddleware
 
                 # Cek apakah ini Create baru ATAU Update yang mengubah role user
                 $isRoleChanged = !$existingUser || !$existingUser->hasRole($selectedRole->name);
-                if ($isRoleChanged) {
-                    #Cek Kuota jika role yang dipilih adalah ADMINISTRATOR
-                    if ($selectedRole->name === 'ADMINISTRATOR') {
-                        $totalAdmin = User::role('ADMINISTRATOR')->count();
 
-                        if (QuotaService::isExceeded('max_admins', $totalAdmin)) {
+                if ($isRoleChanged) {
+                    # Cek Kuota jika role yang dipilih adalah ADMINISTRATOR
+                    if ($selectedRole->name === 'ADMINISTRATOR') {
+                        $isExceeded = QuotaService::isExceeded(
+                            'max_admins',
+                            fn() => User::role('ADMINISTRATOR')->count()
+                        );
+
+                        if ($isExceeded) {
                             return response()->json(['message' => 'Kuota akun Administrator sudah penuh.'], 422);
                         }
                     } else {
-                        #Cek Kuota untuk role selain SA & Admin (dihitung sebagai Pengguna)
-                        $totalUser = User::whereHas('roles', function ($query) {
-                            $query->whereNotIn('name', ['SUPER ADMINISTRATOR', 'ADMINISTRATOR']);
-                        })->count();
+                        # Cek Kuota untuk role selain SA & Admin (dihitung sebagai Pengguna)
+                        $isExceeded = QuotaService::isExceeded(
+                            'max_users',
+                            fn() => User::whereHas('roles', function ($query) {
+                                $query->whereNotIn('name', ['SUPER ADMINISTRATOR', 'ADMINISTRATOR']);
+                            })->count()
+                        );
 
-                        if (QuotaService::isExceeded('max_users', $totalUser)) {
+                        if ($isExceeded) {
                             return response()->json(['message' => 'Kuota akun Pengguna sudah penuh.'], 422);
                         }
                     }

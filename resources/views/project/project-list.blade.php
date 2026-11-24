@@ -93,12 +93,6 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-12 mb-3">
-                                <label class="form-label">Perusahaan ( PT )</label>
-                                <select name="ptid" id="ptid" class="form-select select2" required>
-                                    {{-- <option value=""></option> --}}
-                                </select>
-                            </div>
-                            <div class="col-md-12 mb-3">
                                 <label class="form-label">Parent</label>
                                 <input type="hidden" id="id" class="form-control" name="id">
                                 <input type="hidden" id="parent" class="form-control" name="parent">
@@ -106,7 +100,7 @@
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Nama Sub</label>
-                                <input type="text" id="name" name="name" class="form-control"
+                                <input type="text" id="name" name="name" class="form-control text-uppercase"
                                     placeholder="Nama Sub" required autocomplete="off">
                             </div>
                             <div class="col-md-12 mb-3">
@@ -145,21 +139,15 @@
                                 <img src="" id="preview-logo" class="logo mt-0 mb-2" width="130px">
                             </div>
                             <div class="col-md-12 mb-3">
-                                <label class="form-label">Perusahaan ( PT )</label>
-                                <select name="ptid" id="ptid" class="form-select select2" required>
-                                    <option value=""></option>
-                                </select>
-                            </div>
-                            <div class="col-md-12 mb-3">
                                 <label class="form-label">Nama Project</label>
-                                <input type="text" id="name" name="name" class="form-control"
+                                <input type="text" id="name" name="name" class="form-control text-uppercase"
                                     placeholder="Nama Project" required autocomplete="off">
                                 <input type="hidden" id="id" class="form-control" name="id">
                                 <input type="hidden" id="parent" class="form-control" name="parent">
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Inisial</label>
-                                <input type="text" id="inisial" name="inisial" class="form-control"
+                                <input type="text" id="inisial" name="inisial" class="form-control text-uppercase"
                                     placeholder="Inisial" required autocomplete="off">
                             </div>
                             <div class="col-md-12 mb-3">

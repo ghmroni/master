@@ -7,14 +7,6 @@ $(function () {
         },
     });
 
-    $('#formEdit :input[type="text"]').keyup(function () {
-        this.value = this.value.toUpperCase();
-    });
-
-    $('#formTambah :input[type="text"]').keyup(function () {
-        this.value = this.value.toUpperCase();
-    });
-
     setTimeout(function () {
         getData();
         $.unblockUI();
@@ -94,12 +86,10 @@ $(function () {
         // Clear Data Tombol Edit and Set New Data Tombol Edit
         btnEdit.removeData("id");
         btnEdit.removeData("parent");
-        btnEdit.removeData("ptid");
         btnEdit.removeData("parents");
 
         btnEdit.data("id", data.node.id);
         btnEdit.data("parent", data.node.parent);
-        btnEdit.data("ptid", data.node.original.pt_id);
         btnEdit.data("parents", parents);
         // Clear Data Tombol Edit and Set New Data Tombol Edit
         btnHapus.removeData("id");
@@ -109,10 +99,8 @@ $(function () {
 
         // Clear Data Tambah Edit and Set New Data Tombol Tambah
         btnTambah.removeData("parent");
-        btnTambah.removeData("ptid");
         btnTambah.removeData("parents");
         btnTambah.data("parent", data.node.id);
-        btnTambah.data("ptid", data.node.original.pt_id);
         btnTambah.data("parents", parents);
 
     });
@@ -126,7 +114,6 @@ $(function () {
         var id = $(this).data("id");
         var parent = $(this).data("parent");
         var parents = $(this).data("parents");
-        var ptid = $(this).data("ptid");
 
 
         _loading();
@@ -134,26 +121,8 @@ $(function () {
         $("#modalTambah #formTambah")[0].reset();
 
         if (parent !== "#") {
-            $("#modalEdit #ptid").empty();
-            $("#modalEdit #ptid").val(null);
-
             // Jika Child Lebih dari 2
             if (parents.length > 2) {
-                $.ajax({
-                    url: "/get-perusahaan-all",
-                    type: "GET",
-                    success: function (response) {
-                        $.each(response, function (name, id) {
-                            $('#formEdit #ptid').append('<option value="' + id + '">' + name + '</option>');
-                            $("#formEdit #ptid option[value='" + ptid + "']",).prop("selected", true);
-                        });
-                    },
-                    error: function () {
-                        $.unblockUI();
-                        alert("Gagal mengambil kode otomatis");
-                    },
-                });
-
                 $.getJSON("/project/editsub/?id=" + id, function (res) {
                     var data = res.data;
 
@@ -176,18 +145,6 @@ $(function () {
                     // $.unblockUI();
                 });
             } else {
-                $.ajax({
-                    url: "/get-perusahaan-current?id=" + ptid,
-                    type: "GET",
-                    success: function (response) {
-                        $('#formEdit #ptid').append('<option value="' + response.id + '">' + response.name + '</option>');
-                    },
-                    error: function () {
-                        $.unblockUI();
-                        alert("Gagal mengambil kode otomatis");
-                    },
-                });
-
                 $.getJSON("/project/editsub/?id=" + id, function (res) {
                     var data = res.data;
 
@@ -215,31 +172,10 @@ $(function () {
 
         } else {
             // EDIT PROJECT ROOT
-            $("#formTambah #ptid").empty();
-            $("#formTambah #ptid").val(null);
-
-            $.ajax({
-                url: "/get-perusahaan-current?id=" + ptid,
-                type: "GET",
-                success: function (response) {
-                    $('#formTambah #ptid').append('<option value="' + response.id + '">' + response.name + '</option>');
-                },
-                error: function () {
-                    $.unblockUI();
-                    alert("Gagal mengambil kode otomatis");
-                },
-            });
-
             $.getJSON("/project/edit/?id=" + id, function (res) {
-                var src;
-                // if (!res.logo) {
-                //     src = "";
-                // } else {
-                //     src = "/storage/hris/project/" + res.logo;
-                // }
                 if (res.logo) {
                     $("#previews").show();
-                    var logoUrl = "/assets/logos/" + res.logo;
+                    var logoUrl = "/storage/master/project/" + res.logo;
                     $("#preview-logo").attr("src", logoUrl).show();
                 } else {
                     $("#previews").hide();
@@ -250,7 +186,7 @@ $(function () {
                 $("#formTambah #parent").val(res.parent_id);
                 $("#formTambah #name").val(res.name);
                 $("#formTambah #inisial").val(res.inisial);
-                $("#formTambah .logo").attr("src", src);
+                // $("#formTambah .logo").attr("src", src);
                 $("#formTambah #status").val(res.status);
 
                 setTimeout(function () {
@@ -299,16 +235,36 @@ $(function () {
             },
             error: function (error) {
                 $.unblockUI();
+                let errorMessage = error.statusText;
+                let errorTitle = `Error ${error.status}`;
 
-                var errorMessage = error.statusText;
-                if (error.status == 405) {
-                    // Not Acceptable
-                    var errors = $.parseJSON(error.responseText);
-                    errorMessage = errors.errors;
+                // Coba parse JSON jika ada responseText
+                if (error.responseText) {
+                    try {
+                        let response = JSON.parse(error.responseText);
+                        // Jika format Laravel: { errors: { field: ["msg1", "msg2"] } }
+                        if (response.errors) {
+                            // Gabungkan semua pesan error jadi satu string
+                            // errorMessage = Object.values(response.errors)
+                            //     .flat()
+                            //     .join('\n');
+                            var errors = $.parseJSON(
+                                error.responseText,
+                            );
+                            errorMessage = errors.errors;
+                        } else if (response.message) {
+                            // Jika ada message langsung
+                            errorMessage = response.message;
+                        }
+                    } catch (e) {
+                        // Jika gagal parse, pakai responseText mentah
+                        // errorMessage = error.responseText;
+                        errorMessage = error.statusText;
+                    }
                 }
 
                 Swal.fire({
-                    title: $.parseJSON(error.status),
+                    title: errorTitle,
                     text: errorMessage,
                     icon: "error",
                     showClass: {
@@ -329,7 +285,6 @@ $(function () {
 
     btnTambah.on("click", function () {
         var parent = $(this).data("parent");
-        var ptid = $(this).data("ptid");
         var parents = $(this).data("parents");
 
         _loading();
@@ -338,21 +293,6 @@ $(function () {
 
         $("#formEdit #id").val(null);
         $("#formEdit #parent").val(parent);
-
-        $('#formEdit #ptid').val(null);
-        $("#formEdit #ptid").empty();
-
-        $.ajax({
-            url: "/get-perusahaan-current?id=" + ptid,
-            type: "GET",
-            success: function (response) {
-                $('#formEdit #ptid').append('<option value="' + response.id + '">' + response.name + '</option>');
-            },
-            error: function () {
-                $.unblockUI();
-                alert("Gagal mengambil kode otomatis");
-            },
-        });
 
         if (parents.length > 2) {
             // $.getJSON("/project/editsub", function (res) {
@@ -391,31 +331,12 @@ $(function () {
 
         $("#formTambah #id").val(null);
         $("#formTambah #parent").val(null);
+        setTimeout(function () {
+            $("#modalTambah").modal("show");
+            $("#modalTambah .modal-title").text("Tambah Project");
+            $.unblockUI();
+        }, 300);
 
-        $("#formTambah #ptid")
-            .empty()
-            .append('<option value="">Pilih Perusahaan</option>');
-
-        $.ajax({
-            url: "/get-perusahaan-all",
-            type: "GET",
-            success: function (response) {
-                $.each(response, function (name, id) {
-                    $("#formTambah #ptid").append(
-                        `<option value="${id}">${name}</option>`,
-                    );
-                });
-                setTimeout(function () {
-                    $("#modalTambah").modal("show");
-                    $("#modalTambah .modal-title").text("Tambah Project");
-                    $.unblockUI();
-                }, 300);
-            },
-            error: function () {
-                $.unblockUI();
-                alert("Gagal mengambil kode otomatis");
-            },
-        });
     });
 
     $("#formTambah").submit(function (event) {
@@ -460,16 +381,36 @@ $(function () {
             },
             error: function (error) {
                 $.unblockUI();
+                let errorMessage = error.statusText;
+                let errorTitle = `Error ${error.status}`;
 
-                var errorMessage = error.statusText;
-                if (error.status == 405) {
-                    // Not Acceptable
-                    var errors = $.parseJSON(error.responseText);
-                    errorMessage = errors.errors;
+                // Coba parse JSON jika ada responseText
+                if (error.responseText) {
+                    try {
+                        let response = JSON.parse(error.responseText);
+                        // Jika format Laravel: { errors: { field: ["msg1", "msg2"] } }
+                        if (response.errors) {
+                            // Gabungkan semua pesan error jadi satu string
+                            // errorMessage = Object.values(response.errors)
+                            //     .flat()
+                            //     .join('\n');
+                            var errors = $.parseJSON(
+                                error.responseText,
+                            );
+                            errorMessage = errors.errors;
+                        } else if (response.message) {
+                            // Jika ada message langsung
+                            errorMessage = response.message;
+                        }
+                    } catch (e) {
+                        // Jika gagal parse, pakai responseText mentah
+                        // errorMessage = error.responseText;
+                        errorMessage = error.statusText;
+                    }
                 }
 
                 Swal.fire({
-                    title: $.parseJSON(error.status),
+                    title: errorTitle,
                     text: errorMessage,
                     icon: "error",
                     showClass: {
