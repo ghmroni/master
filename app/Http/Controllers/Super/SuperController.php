@@ -36,8 +36,14 @@ class SuperController extends Controller implements HasMiddleware
     {
         if ($request->ajax()) {
             $data = User::select('*')
+                ->when(!Auth::user()->hasRole('SUPER ADMINISTRATOR'), function ($query) {
+                    // Sembunyikan user yang memiliki role SA atau Administrator
+                    $query->whereDoesntHave('roles', function ($q) {
+                        $q->whereIn('name', ['SUPER ADMINISTRATOR']);
+                    });
+                })
                 ->with('roles', function ($q) {
-                    $q->select('name');
+                    $q->select('roles.id', 'roles.name');
                 })
                 ->orderBy('name', 'ASC')
                 ->get();
