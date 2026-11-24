@@ -78,21 +78,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Project::class, 'akses_project', 'user_id', 'project_id');
     }
 
-    // public function getProjectAccess()
-    // {
-    //     $roles = $this->roles->pluck('id')->toArray();
 
-    //     if (in_array(7, $roles)) {
-    //         $idRoot = 1;
-    //         $rootProject = Project::find($idRoot);
-
-    //         return $rootProject
-    //             ? $rootProject->descendantsAndSelf()->pluck('id')->toArray()
-    //             : [$idRoot];
-    //     }
-
-    //     return $this->projects()->pluck('akses_project.project_id')->toArray();
-    // }
 
     public function getProjectAccess()
     {
